@@ -14,6 +14,7 @@ import {CurrencyLibrary, Currency} from "@uniswap/v4-core/contracts/libraries/Cu
 import {HookTest} from "./utils/HookTest.sol";
 import {IMailbox} from "hyperlane-monorepo/solidity/contracts/interfaces/IMailbox.sol";
 import {MockMailbox} from "hyperlane-monorepo/solidity/contracts/mock/MockMailbox.sol";
+import {MockERC20} from "solmate/test/utils/mocks/MockERC20.sol";
 
 import {HyperlaneLPHook} from "../src/HyperlaneLPHook.sol";
 import {HyperlaneLPHookImplementation} from "./implementation/HyperlaneLPHookImplementation.sol";
@@ -26,7 +27,8 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
     MockMailbox public mailbox = new MockMailbox(1);
     MockMailbox public remoteMailbox = new MockMailbox(2);
 
-    LPBenefits public lpBenefits = new LPBenefits();
+    MockERC20 public rewardToken = new MockERC20("Reward Token", "RT", 18);
+    LPBenefits public lpBenefits = new LPBenefits(address(rewardToken));
 
     HyperlaneLPHook hook = HyperlaneLPHook(address(uint160(Hooks.AFTER_MODIFY_POSITION_FLAG)));
     IPoolManager.PoolKey poolKey;
@@ -60,4 +62,6 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
         // process the message
         remoteMailbox.processNextInboundMessage();
     }
+
+    function testBurn() public {}
 }

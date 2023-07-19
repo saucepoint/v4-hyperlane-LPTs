@@ -3,8 +3,9 @@ pragma solidity ^0.8.15;
 
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
-contract StakingRewards {
-    IERC20 public immutable stakingToken;
+/// Modified from https://solidity-by-example.org/defi/staking-rewards/
+/// Does not require an ERC20 token to be staked, staking occurs from LPing on mainnet
+contract Emissions {
     IERC20 public immutable rewardsToken;
 
     address public owner;
@@ -29,9 +30,8 @@ contract StakingRewards {
     // User address => staked amount
     mapping(address => uint256) public balanceOf;
 
-    constructor(address _stakingToken, address _rewardToken) {
+    constructor(address _rewardToken) {
         owner = msg.sender;
-        stakingToken = IERC20(_stakingToken);
         rewardsToken = IERC20(_rewardToken);
     }
 
@@ -64,10 +64,9 @@ contract StakingRewards {
         return rewardPerTokenStored + (rewardRate * (lastTimeRewardApplicable() - updatedAt) * 1e18) / totalSupply;
     }
 
-    function stake(uint256 _amount) external updateReward(msg.sender) {
+    function stake(uint256 _amount, address beneficiary) internal updateReward(msg.sender) {
         require(_amount > 0, "amount = 0");
-        stakingToken.transferFrom(msg.sender, address(this), _amount);
-        balanceOf[msg.sender] += _amount;
+        balanceOf[beneficiary] += _amount;
         totalSupply += _amount;
     }
 
@@ -75,7 +74,6 @@ contract StakingRewards {
         require(_amount > 0, "amount = 0");
         balanceOf[msg.sender] -= _amount;
         totalSupply -= _amount;
-        stakingToken.transfer(msg.sender, _amount);
     }
 
     function earned(address _account) public view returns (uint256) {

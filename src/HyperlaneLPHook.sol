@@ -9,6 +9,7 @@ import {PoolId} from "@uniswap/v4-core/contracts/libraries/PoolId.sol";
 import {BalanceDelta} from "@uniswap/v4-core/contracts/types/BalanceDelta.sol";
 
 import {IMailbox} from "hyperlane-monorepo/solidity/contracts/interfaces/IMailbox.sol";
+import {LPT} from "./examples/LPBenefits.sol";
 
 contract HyperlaneLPHook is BaseHook {
     using PoolId for IPoolManager.PoolKey;
@@ -45,7 +46,7 @@ contract HyperlaneLPHook is BaseHook {
         BalanceDelta
     ) external override returns (bytes4) {
         {
-            bytes memory data = abi.encode(sender);
+            bytes memory data = abi.encode((LPT({amount: 10 ether, holder: sender})));
             mailbox.dispatch(destination, receiveAddr, data);
             return BaseHook.afterModifyPosition.selector;
         }
