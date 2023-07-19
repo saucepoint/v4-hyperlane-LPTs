@@ -17,6 +17,7 @@ import {MockMailbox} from "hyperlane-monorepo/solidity/contracts/mock/MockMailbo
 
 import {HyperlaneLPHook} from "../src/HyperlaneLPHook.sol";
 import {HyperlaneLPHookImplementation} from "./implementation/HyperlaneLPHookImplementation.sol";
+import {LPBenefits} from "../src/examples/LPBenefits.sol";
 
 contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
     using PoolId for IPoolManager.PoolKey;
@@ -24,6 +25,8 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
 
     MockMailbox public mailbox = new MockMailbox(1);
     MockMailbox public remoteMailbox = new MockMailbox(2);
+
+    LPBenefits public lpBenefits = new LPBenefits();
 
     HyperlaneLPHook hook = HyperlaneLPHook(address(uint160(Hooks.AFTER_MODIFY_POSITION_FLAG)));
     IPoolManager.PoolKey poolKey;
@@ -38,7 +41,7 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
         // testing environment requires our contract to override `validateHookAddress`
         // well do that via the Implementation contract to avoid deploying the override with the production contract
         HyperlaneLPHookImplementation impl =
-            new HyperlaneLPHookImplementation(manager, IMailbox(address(mailbox)), hook);
+        new HyperlaneLPHookImplementation(manager, IMailbox(address(mailbox)), 2, bytes32(uint256(uint160(address(lpBenefits)))), hook);
         etchHook(address(impl), address(hook));
 
         // Create the pool
@@ -46,20 +49,15 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
             IPoolManager.PoolKey(Currency.wrap(address(token0)), Currency.wrap(address(token1)), 3000, 60, IHooks(hook));
         poolId = PoolId.toId(poolKey);
         manager.initialize(poolKey, SQRT_RATIO_1_1);
+    }
 
+    function testProvision() public {
         // Provide liquidity to the pool
-        modifyPositionRouter.modifyPosition(poolKey, IPoolManager.ModifyPositionParams(-60, 60, 10 ether));
-        modifyPositionRouter.modifyPosition(poolKey, IPoolManager.ModifyPositionParams(-120, 120, 10 ether));
         modifyPositionRouter.modifyPosition(
             poolKey, IPoolManager.ModifyPositionParams(TickMath.minUsableTick(60), TickMath.maxUsableTick(60), 10 ether)
         );
-    }
 
-    function testCounterHooks() public {
-        // Perform a test swap //
-        int256 amount = 100;
-        bool zeroForOne = true;
-        swap(poolKey, amount, zeroForOne);
-        // ------------------- //
+        // process the message
+        remoteMailbox.processNextInboundMessage();
     }
 }

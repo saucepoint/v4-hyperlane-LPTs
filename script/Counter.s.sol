@@ -36,7 +36,7 @@ contract HyperlaneLPHookScript is Script {
         vm.broadcast();
         // until i figure out create2 deploys on an anvil RPC, we'll use the etch cheatcode
         HyperlaneLPHookImplementation impl =
-            new HyperlaneLPHookImplementation(manager, IMailbox(address(0x0)), HyperlaneLPHook(address(targetFlags)));
+        new HyperlaneLPHookImplementation(manager, IMailbox(address(0x0)), 2, bytes32(0x0), HyperlaneLPHook(address(targetFlags)));
         etchHook(address(impl), address(targetFlags));
 
         vm.startBroadcast();

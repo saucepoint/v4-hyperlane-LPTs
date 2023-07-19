@@ -10,9 +10,13 @@ import {Hooks} from "@uniswap/v4-core/contracts/libraries/Hooks.sol";
 import {IMailbox} from "hyperlane-monorepo/solidity/contracts/interfaces/IMailbox.sol";
 
 contract HyperlaneLPHookImplementation is HyperlaneLPHook {
-    constructor(IPoolManager poolManager, IMailbox mailbox, HyperlaneLPHook addressToEtch)
-        HyperlaneLPHook(poolManager, mailbox, 2)
-    {
+    constructor(
+        IPoolManager poolManager,
+        IMailbox mailbox,
+        uint32 destination,
+        bytes32 receiveAddr,
+        HyperlaneLPHook addressToEtch
+    ) HyperlaneLPHook(poolManager, mailbox, destination, receiveAddr) {
         Hooks.validateHookAddress(addressToEtch, getHooksCalls());
     }
 

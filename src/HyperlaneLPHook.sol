@@ -15,10 +15,14 @@ contract HyperlaneLPHook is BaseHook {
 
     IMailbox public immutable mailbox;
     uint32 public immutable destination;
+    bytes32 public immutable receiveAddr;
 
-    constructor(IPoolManager _poolManager, IMailbox _mailbox, uint32 _destination) BaseHook(_poolManager) {
+    constructor(IPoolManager _poolManager, IMailbox _mailbox, uint32 _destination, bytes32 _receiveAddr)
+        BaseHook(_poolManager)
+    {
         mailbox = _mailbox;
         destination = _destination;
+        receiveAddr = _receiveAddr;
     }
 
     function getHooksCalls() public pure override returns (Hooks.Calls memory) {
@@ -42,7 +46,7 @@ contract HyperlaneLPHook is BaseHook {
     ) external override returns (bytes4) {
         {
             bytes memory data = abi.encode(sender);
-            mailbox.dispatch(destination, bytes32(uint256(uint160(sender))), data);
+            mailbox.dispatch(destination, receiveAddr, data);
             return BaseHook.afterModifyPosition.selector;
         }
     }
