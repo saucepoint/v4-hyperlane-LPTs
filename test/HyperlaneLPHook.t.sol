@@ -27,6 +27,8 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
     MockMailbox public mailbox = new MockMailbox(1);
     MockMailbox public remoteMailbox = new MockMailbox(2);
 
+    address alice = makeAddr("alice");
+
     MockERC20 public rewardToken = new MockERC20("Reward Token", "RT", 18);
     LPBenefits public lpBenefits = new LPBenefits(address(rewardToken));
 
@@ -51,9 +53,15 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
             IPoolManager.PoolKey(Currency.wrap(address(token0)), Currency.wrap(address(token1)), 3000, 60, IHooks(hook));
         poolId = PoolId.toId(poolKey);
         manager.initialize(poolKey, SQRT_RATIO_1_1);
+
+        // Provide rewards
+        lpBenefits.setRewardsDuration(60 * 60 * 24 * 7); // 1 week
+        rewardToken.mint(address(this), 100e18);
+        rewardToken.transfer(address(lpBenefits), 100e18);
+        lpBenefits.notifyRewardAmount(100e18);
     }
 
-    function testProvision() public {
+    function test_provisionReceivesRewards() public {
         // Provide liquidity to the pool
         modifyPositionRouter.modifyPosition(
             poolKey, IPoolManager.ModifyPositionParams(TickMath.minUsableTick(60), TickMath.maxUsableTick(60), 10 ether)
@@ -61,6 +69,16 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
 
         // process the message
         remoteMailbox.processNextInboundMessage();
+
+        // fast forward half a week to receive half the rewards (50e18 $MOCK)
+        skip(302400);
+        assertEq(rewardToken.balanceOf(address(modifyPositionRouter)), 0);
+        // hack: positionRouter originates the LP on poolmanager, so they receive the rewards
+        // it will be up to the positionRouter to distribute the rewards to the LPs
+        vm.prank(address(modifyPositionRouter));
+        lpBenefits.getReward();
+        // 50e18 reward, just rounding error
+        assertEq(rewardToken.balanceOf(address(modifyPositionRouter)), 49999999999999896000);
     }
 
     function testBurn() public {}
