@@ -18,7 +18,7 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
     using PoolId for IPoolManager.PoolKey;
     using CurrencyLibrary for Currency;
 
-    HyperlaneLPHook hook = HyperlaneLPHook(address(uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.AFTER_SWAP_FLAG)));
+    HyperlaneLPHook hook = HyperlaneLPHook(address(uint160(Hooks.AFTER_MODIFY_POSITION_FLAG)));
     IPoolManager.PoolKey poolKey;
     bytes32 poolId;
 
@@ -47,16 +47,10 @@ contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
     }
 
     function testCounterHooks() public {
-        assertEq(hook.beforeSwapCount(), 0);
-        assertEq(hook.afterSwapCount(), 0);
-
         // Perform a test swap //
         int256 amount = 100;
         bool zeroForOne = true;
         swap(poolKey, amount, zeroForOne);
         // ------------------- //
-
-        assertEq(hook.beforeSwapCount(), 1);
-        assertEq(hook.afterSwapCount(), 1);
     }
 }

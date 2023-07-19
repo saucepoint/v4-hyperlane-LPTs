@@ -8,11 +8,10 @@ import {IPoolManager} from "@uniswap/v4-core/contracts/interfaces/IPoolManager.s
 import {PoolId} from "@uniswap/v4-core/contracts/libraries/PoolId.sol";
 import {BalanceDelta} from "@uniswap/v4-core/contracts/types/BalanceDelta.sol";
 
+import {IMailbox} from "hyperlane-monorepo/solidity/contracts/interfaces/IMailbox.sol";
+
 contract HyperlaneLPHook is BaseHook {
     using PoolId for IPoolManager.PoolKey;
-
-    uint256 public beforeSwapCount;
-    uint256 public afterSwapCount;
 
     constructor(IPoolManager _poolManager) BaseHook(_poolManager) {}
 
@@ -21,29 +20,22 @@ contract HyperlaneLPHook is BaseHook {
             beforeInitialize: false,
             afterInitialize: false,
             beforeModifyPosition: false,
-            afterModifyPosition: false,
-            beforeSwap: true,
-            afterSwap: true,
+            afterModifyPosition: true,
+            beforeSwap: false,
+            afterSwap: false,
             beforeDonate: false,
             afterDonate: false
         });
     }
 
-    function beforeSwap(address, IPoolManager.PoolKey calldata, IPoolManager.SwapParams calldata)
-        external
-        override
-        returns (bytes4)
-    {
-        beforeSwapCount++;
-        return BaseHook.beforeSwap.selector;
-    }
-
-    function afterSwap(address, IPoolManager.PoolKey calldata, IPoolManager.SwapParams calldata, BalanceDelta)
-        external
-        override
-        returns (bytes4)
-    {
-        afterSwapCount++;
-        return BaseHook.afterSwap.selector;
+    function afterModifyPosition(
+        address,
+        IPoolManager.PoolKey calldata,
+        IPoolManager.ModifyPositionParams calldata,
+        BalanceDelta
+    ) external override returns (bytes4) {
+        {
+            return BaseHook.afterModifyPosition.selector;
+        }
     }
 }
