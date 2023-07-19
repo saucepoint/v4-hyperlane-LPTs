@@ -8,13 +8,13 @@ import {IPoolManager} from "@uniswap/v4-core/contracts/interfaces/IPoolManager.s
 import {PoolModifyPositionTest} from "@uniswap/v4-core/contracts/test/PoolModifyPositionTest.sol";
 import {PoolSwapTest} from "@uniswap/v4-core/contracts/test/PoolSwapTest.sol";
 import {PoolDonateTest} from "@uniswap/v4-core/contracts/test/PoolDonateTest.sol";
-import {Counter} from "../src/Counter.sol";
-import {CounterImplementation} from "../test/implementation/CounterImplementation.sol";
+import {HyperlaneLPHook} from "../src/HyperlaneLPHook.sol";
+import {HyperlaneLPHookImplementation} from "../test/implementation/HyperlaneLPHookImplementation.sol";
 
 /// @notice Forge script for deploying v4 & hooks to **anvil**
 /// @dev This script only works on an anvil RPC because v4 exceeds bytecode limits
 /// @dev and we also need vm.etch() to deploy the hook to the proper address
-contract CounterScript is Script {
+contract HyperlaneLPHookScript is Script {
     function setUp() public {}
 
     function run() public {
@@ -34,7 +34,7 @@ contract CounterScript is Script {
 
         vm.broadcast();
         // until i figure out create2 deploys on an anvil RPC, we'll use the etch cheatcode
-        CounterImplementation impl = new CounterImplementation(manager, Counter(address(targetFlags)));
+        HyperlaneLPHookImplementation impl = new HyperlaneLPHookImplementation(manager, HyperlaneLPHook(address(targetFlags)));
         etchHook(address(impl), address(targetFlags));
 
         vm.startBroadcast();

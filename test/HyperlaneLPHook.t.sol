@@ -11,14 +11,14 @@ import {PoolId} from "@uniswap/v4-core/contracts/libraries/PoolId.sol";
 import {Deployers} from "@uniswap/v4-core/test/foundry-tests/utils/Deployers.sol";
 import {CurrencyLibrary, Currency} from "@uniswap/v4-core/contracts/libraries/CurrencyLibrary.sol";
 import {HookTest} from "./utils/HookTest.sol";
-import {Counter} from "../src/Counter.sol";
-import {CounterImplementation} from "./implementation/CounterImplementation.sol";
+import {HyperlaneLPHook} from "../src/HyperlaneLPHook.sol";
+import {HyperlaneLPHookImplementation} from "./implementation/HyperlaneLPHookImplementation.sol";
 
-contract CounterTest is HookTest, Deployers, GasSnapshot {
+contract HyperlaneLPHookTest is HookTest, Deployers, GasSnapshot {
     using PoolId for IPoolManager.PoolKey;
     using CurrencyLibrary for Currency;
 
-    Counter counter = Counter(address(uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.AFTER_SWAP_FLAG)));
+    HyperlaneLPHook hook = HyperlaneLPHook(address(uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.AFTER_SWAP_FLAG)));
     IPoolManager.PoolKey poolKey;
     bytes32 poolId;
 
@@ -28,12 +28,12 @@ contract CounterTest is HookTest, Deployers, GasSnapshot {
 
         // testing environment requires our contract to override `validateHookAddress`
         // well do that via the Implementation contract to avoid deploying the override with the production contract
-        CounterImplementation impl = new CounterImplementation(manager, counter);
-        etchHook(address(impl), address(counter));
+        HyperlaneLPHookImplementation impl = new HyperlaneLPHookImplementation(manager, hook);
+        etchHook(address(impl), address(hook));
 
         // Create the pool
         poolKey = IPoolManager.PoolKey(
-            Currency.wrap(address(token0)), Currency.wrap(address(token1)), 3000, 60, IHooks(counter)
+            Currency.wrap(address(token0)), Currency.wrap(address(token1)), 3000, 60, IHooks(hook)
         );
         poolId = PoolId.toId(poolKey);
         manager.initialize(poolKey, SQRT_RATIO_1_1);
@@ -47,8 +47,8 @@ contract CounterTest is HookTest, Deployers, GasSnapshot {
     }
 
     function testCounterHooks() public {
-        assertEq(counter.beforeSwapCount(), 0);
-        assertEq(counter.afterSwapCount(), 0);
+        assertEq(hook.beforeSwapCount(), 0);
+        assertEq(hook.afterSwapCount(), 0);
 
         // Perform a test swap //
         int256 amount = 100;
@@ -56,7 +56,7 @@ contract CounterTest is HookTest, Deployers, GasSnapshot {
         swap(poolKey, amount, zeroForOne);
         // ------------------- //
 
-        assertEq(counter.beforeSwapCount(), 1);
-        assertEq(counter.afterSwapCount(), 1);
+        assertEq(hook.beforeSwapCount(), 1);
+        assertEq(hook.afterSwapCount(), 1);
     }
 }
