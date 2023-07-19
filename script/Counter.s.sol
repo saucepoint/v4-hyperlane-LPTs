@@ -10,6 +10,7 @@ import {PoolSwapTest} from "@uniswap/v4-core/contracts/test/PoolSwapTest.sol";
 import {PoolDonateTest} from "@uniswap/v4-core/contracts/test/PoolDonateTest.sol";
 import {HyperlaneLPHook} from "../src/HyperlaneLPHook.sol";
 import {HyperlaneLPHookImplementation} from "../test/implementation/HyperlaneLPHookImplementation.sol";
+import {IMailbox} from "hyperlane-monorepo/solidity/contracts/interfaces/IMailbox.sol";
 
 /// @notice Forge script for deploying v4 & hooks to **anvil**
 /// @dev This script only works on an anvil RPC because v4 exceeds bytecode limits
@@ -34,7 +35,8 @@ contract HyperlaneLPHookScript is Script {
 
         vm.broadcast();
         // until i figure out create2 deploys on an anvil RPC, we'll use the etch cheatcode
-        HyperlaneLPHookImplementation impl = new HyperlaneLPHookImplementation(manager, HyperlaneLPHook(address(targetFlags)));
+        HyperlaneLPHookImplementation impl =
+            new HyperlaneLPHookImplementation(manager, IMailbox(address(0x0)), HyperlaneLPHook(address(targetFlags)));
         etchHook(address(impl), address(targetFlags));
 
         vm.startBroadcast();

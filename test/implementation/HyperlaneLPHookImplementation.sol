@@ -7,8 +7,12 @@ import {BaseHook} from "v4-periphery/BaseHook.sol";
 import {IPoolManager} from "@uniswap/v4-core/contracts/interfaces/IPoolManager.sol";
 import {Hooks} from "@uniswap/v4-core/contracts/libraries/Hooks.sol";
 
+import {IMailbox} from "hyperlane-monorepo/solidity/contracts/interfaces/IMailbox.sol";
+
 contract HyperlaneLPHookImplementation is HyperlaneLPHook {
-    constructor(IPoolManager poolManager, HyperlaneLPHook addressToEtch) HyperlaneLPHook(poolManager) {
+    constructor(IPoolManager poolManager, IMailbox mailbox, HyperlaneLPHook addressToEtch)
+        HyperlaneLPHook(poolManager, mailbox, 2)
+    {
         Hooks.validateHookAddress(addressToEtch, getHooksCalls());
     }
 

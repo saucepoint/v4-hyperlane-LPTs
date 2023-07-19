@@ -13,7 +13,13 @@ import {IMailbox} from "hyperlane-monorepo/solidity/contracts/interfaces/IMailbo
 contract HyperlaneLPHook is BaseHook {
     using PoolId for IPoolManager.PoolKey;
 
-    constructor(IPoolManager _poolManager) BaseHook(_poolManager) {}
+    IMailbox public immutable mailbox;
+    uint32 public immutable destination;
+
+    constructor(IPoolManager _poolManager, IMailbox _mailbox, uint32 _destination) BaseHook(_poolManager) {
+        mailbox = _mailbox;
+        destination = _destination;
+    }
 
     function getHooksCalls() public pure override returns (Hooks.Calls memory) {
         return Hooks.Calls({
@@ -29,12 +35,14 @@ contract HyperlaneLPHook is BaseHook {
     }
 
     function afterModifyPosition(
-        address,
+        address sender,
         IPoolManager.PoolKey calldata,
         IPoolManager.ModifyPositionParams calldata,
         BalanceDelta
     ) external override returns (bytes4) {
         {
+            bytes memory data = abi.encode(sender);
+            mailbox.dispatch(destination, bytes32(uint256(uint160(sender))), data);
             return BaseHook.afterModifyPosition.selector;
         }
     }
