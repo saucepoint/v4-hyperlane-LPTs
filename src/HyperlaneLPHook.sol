@@ -46,6 +46,8 @@ contract HyperlaneLPHook is BaseHook {
         BalanceDelta
     ) external override returns (bytes4) {
         {
+            // TODO: read and provide LP liquidity amount
+            // TODO: account for LP burning
             bytes memory data = abi.encode((LPT({amount: 10 ether, holder: sender})));
             mailbox.dispatch(destination, receiveAddr, data);
             return BaseHook.afterModifyPosition.selector;
