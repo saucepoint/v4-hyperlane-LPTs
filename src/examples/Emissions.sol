@@ -30,6 +30,8 @@ contract Emissions {
     // User address => staked amount
     mapping(address => uint256) public balanceOf;
 
+    event Staked(address indexed user, uint256 amount);
+
     constructor(address _rewardToken) {
         owner = msg.sender;
         rewardsToken = IERC20(_rewardToken);
@@ -68,6 +70,7 @@ contract Emissions {
         require(_amount > 0, "amount = 0");
         balanceOf[beneficiary] += _amount;
         totalSupply += _amount;
+        emit Staked(beneficiary, _amount);
     }
 
     function withdraw(uint256 _amount) external updateReward(msg.sender) {
