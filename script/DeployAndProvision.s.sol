@@ -24,8 +24,8 @@ import {HookTest} from "../test/utils/HookTest.sol";
 contract HyperlaneLPHookScript is Script, HookTest, Deployers {
     using CurrencyLibrary for Currency;
 
-    address public MAILBOX = address(0x0);
-    address public LP_BENEFITS = address(0x0);
+    address public MAILBOX = address(0xe778994a38b840fd3598CA943871D706B4B8bc1F);
+    address public LP_BENEFITS = address(0x6B1e75149F6a154988Bb36Fa0C0AF35C8000eC60);
 
     function setUp() public {}
 
@@ -57,6 +57,10 @@ contract HyperlaneLPHookScript is Script, HookTest, Deployers {
         manager.initialize(poolKey, SQRT_RATIO_1_1);
 
         // Provide liquidity to the pool
+        token0.mint(msg.sender, 100 ether);
+        token1.mint(msg.sender, 100 ether);
+        token0.approve(address(modifyPositionRouter), 100 ether);
+        token1.approve(address(modifyPositionRouter), 100 ether);
         modifyPositionRouter.modifyPosition(
             poolKey, IPoolManager.ModifyPositionParams(TickMath.minUsableTick(60), TickMath.maxUsableTick(60), 10 ether)
         );
