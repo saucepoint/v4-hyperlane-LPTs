@@ -21,8 +21,8 @@ contract LPBenefits is IMessageRecipient, Emissions {
      * @param _body Raw bytes content of message body
      */
     function handle(uint32 _origin, bytes32, bytes calldata _body) external {
-        require(_origin == 1, "Must be from mainnet");
         // TODO: require the call originates from the hook address
+        // require(_origin == 1, "Must be from mainnet");
         LPT memory lpt = abi.decode(_body, (LPT));
         stake(lpt.amount, lpt.holder);
         emit Handler(lpt.amount, lpt.holder);
