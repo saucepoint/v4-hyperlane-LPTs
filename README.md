@@ -3,7 +3,8 @@
 
 > *Produced during the Modular Hacker House (EthCC 2023)*
 
-![Untitled-2023-07-21-2023 (1)](https://github.com/saucepoint/v4-hyperlane-LPTs/assets/98790946/ff4e0325-4c11-4cdf-beac-3e6d28b7b1ee)
+![Untitled-2023-07-21-2023 (1)](https://github.com/saucepoint/v4-hyperlane-LPTs/assets/98790946/bec41a18-0391-4376-b033-85fefba9c913)
+
 
 With rollups-as-a-service (RaaS) app-chains becoming popular, new networks will want to incentivize TVL and liquidity. To reduce friction, I've set up an *experimental* v4 hook that can notify destination chains of liquidity provisioning.
 
